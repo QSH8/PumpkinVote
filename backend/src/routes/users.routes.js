@@ -3,6 +3,6 @@ import UsersController from '../controllers/users.controller.js';
 
 const router = Router();
 
-router.post('/', UsersController.checkAuth);
+router.post('/', UsersController.login);
 
 export default router;

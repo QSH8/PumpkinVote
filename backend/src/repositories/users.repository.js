@@ -2,7 +2,7 @@ import BaseRepository from './base.repository.js';
 
 class UsersRepository extends BaseRepository {
   constructor() {
-    super('users'); // Просто передаем имя таблицы в базовый класс
+    super('users');
   }
 
   async getUser(login) {

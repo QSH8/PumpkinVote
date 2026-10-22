@@ -16,7 +16,10 @@ export default (req, res, next) => {
       return res.status(401).json({ error: 'Срок действия токена истек' });
     }
 
-    req.userId = decoded.userId;
+    req.user = {
+      id: decoded.userId,
+      team_id: decoded.teamId // Извлекли из токена
+    };
     next();
   } catch (err) {
     console.log('err', err);

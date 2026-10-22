@@ -1,9 +1,9 @@
 import express from 'express';
 import usersRouter from './routes/users.routes.js';
-
+import votesRouter from './routes/votes.routes.js';
 import { catchAsync } from './utils/catchAsync.js';
 import { CheckAuthMiddleware, ErrorMiddleware } from './middlewares/index.js';
-import { initDatabase } from './config/db.js';
+import { initDatabase, pool } from './config/db.js';
 
 const PORT = process.env.PORT || 5000;
 
@@ -17,10 +17,10 @@ app.use('/api/login', usersRouter);
 app.use(CheckAuthMiddleware);
 
 // Подключение роутеров сущностей
-// Сюда роутеры ->
+app.use('/api/votes', votesRouter);
 // Проверочный роут (Health-check)
 app.get('/api/status', catchAsync(async (req, res) => {
-    const dbStatus = await await query('SELECT NOW()');
+    const dbStatus = await pool.query('SELECT NOW()');
 
     res.json({
       status: 'Server is running',
@@ -29,11 +29,10 @@ app.get('/api/status', catchAsync(async (req, res) => {
   })
 );
 
-// ЧТО ДОБАВИЛОСЬ: Перехват 404 и передача в middleware ошибок
 app.use((req, res, next) => {
     const error = new Error(`Маршрут ${req.originalUrl} не найден`);
-    error.status = 404; // Можно задать статус для вашей middleware
-    next(error); // Передаем ошибку дальше в ErrorMiddleware
+    error.statusCode = 404;
+    next(error);
 });
 
 app.use(ErrorMiddleware);
