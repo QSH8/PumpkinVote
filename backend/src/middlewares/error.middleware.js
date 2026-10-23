@@ -1,4 +1,4 @@
-export default (err, _, res, _) => {
+export default (err, useless_1, res, useless_2) => {
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Внутренняя ошибка сервера';
 
