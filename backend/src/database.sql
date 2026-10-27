@@ -4,20 +4,20 @@
 -- DROP TABLE IF EXISTS orders CASCADE;
 
 -- 1. Справочник категорий (только 4 именованные)
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE
 );
 
 -- 2. Таблица команд
-CREATE TABLE teams (
+CREATE TABLE IF NOT EXISTS teams (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL UNIQUE,
     category_id INT NOT NULL REFERENCES categories(id) ON DELETE RESTRICT
 );
 
 -- 3. Таблица пользователей (участников команд)
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL, -- для авторизации
@@ -25,7 +25,7 @@ CREATE TABLE users (
 );
 
 -- 4. Таблица голосов с жесткими ограничениями
-CREATE TABLE votes (
+CREATE TABLE IF NOT EXISTS votes (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     team_id INT NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
@@ -61,6 +61,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS enforce_no_self_voting ON votes;
+
 CREATE TRIGGER enforce_no_self_voting
 BEFORE INSERT OR UPDATE ON votes
 FOR EACH ROW
@@ -71,4 +73,5 @@ INSERT INTO categories (name) VALUES
 ('Хоррор и фэнтези'), 
 ('Мультфильмы, игры и сказки'), 
 ('Юмор, пародии и предметы'), 
-('Кино и сериалы');
+('Кино и сериалы')
+ON CONFLICT (name) DO NOTHING;

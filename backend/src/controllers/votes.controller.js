@@ -1,4 +1,4 @@
-import pool from '../config/db.js';
+import { pool } from '../config/db.js';
 import { votesRepository } from '../repositories/votes.repository.js';
 import { AppError } from '../utils/appErrors.js';
 import { catchAsync } from '../utils/catchAsync.js';
@@ -105,5 +105,32 @@ export const votesController = {
             status: 'success',
             data: results
         });
-    })
+    }),
+
+    getCategories: catchAsync(async (req, res, next) => {
+        const categories = await votesRepository.getCategories();
+
+        res.status(200).json({
+            status: 'success',
+            data: categories
+        });
+    }),
+
+    getTeams: catchAsync(async (req, res, next) => {
+        const teams = await votesRepository.getTeams();
+
+        res.status(200).json({
+            status: 'success',
+            data: teams
+        });
+    }),
+
+    getTeamsByCategory: catchAsync(async (req, res, next) => {
+        const teamsByCategory = await votesRepository.getTeamsByCategory(req.userId);
+
+        res.status(200).json({
+            status: 'success',
+            data: teamsByCategory
+        });
+    }),
 };

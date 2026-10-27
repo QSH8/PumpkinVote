@@ -1,9 +1,10 @@
-import { BaseRepository } from './base.repository.js';
+import BaseRepository from './base.repository.js';
 
 class VotesRepository extends BaseRepository {
     constructor() {
         super('votes');
     }
+
 
     /**
      * Массовое сохранение голосов в рамках одной транзакции
@@ -31,6 +32,7 @@ class VotesRepository extends BaseRepository {
         await dbClient.query(queryText, values);
     }
 
+
     /**
      * Получить результаты голосования по всем категориям (включая Абсолютную)
      */
@@ -53,6 +55,53 @@ class VotesRepository extends BaseRepository {
 
         const { rows } = await this.pool.query(queryText);
         return rows;
+    }
+
+
+    /**
+     * Получить все именованные категории
+     */
+    async getCategories() {
+        const queryText = `SELECT id, name FROM categories ORDER BY id ASC;`;
+        const { rows } = await this.pool.query(queryText);
+
+        return rows;
+    }
+
+
+    /**
+     * Получить все команды
+     */
+    async getTeams() {
+        const queryText = `SELECT id, name, category_id FROM teams ORDER BY id ASC;`;
+        const { rows } = await this.pool.query(queryText);
+
+        return rows;
+    }
+
+    /**
+     * Получить все команды
+     */
+    async getTeamsByCategory(userId) {
+        const queryText = `
+            SELECT json_object_agg(category_id, teams_list) AS data
+            FROM (
+            SELECT 
+                category_id, 
+                json_agg(json_build_object('id', id, 'name', name, 'category_id', category_id) ORDER BY id ASC) AS teams_list
+            FROM teams
+            WHERE id NOT IN (
+                SELECT team_id 
+                FROM users 
+                WHERE id = $1 AND team_id IS NOT NULL
+            )
+            GROUP BY category_id
+            ) sub;
+        `;
+        
+        const { rows } = await this.pool.query(queryText, [userId]);
+        
+        return rows[0]?.data || {};
     }
 }
 

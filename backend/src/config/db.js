@@ -8,7 +8,7 @@ dotenv.config();
 pg.types.setTypeParser(1114, stringValue => stringValue);
 pg.types.setTypeParser(1184, stringValue => stringValue);
 
-const pool = new pg.Pool({
+export const pool = new pg.Pool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   host: process.env.DB_HOST,
@@ -28,5 +28,3 @@ export const initDatabase = async () => {
     process.exit(1); // Останавливаем сервер, если таблицы не создались
   }
 };
-
-export default pool;
