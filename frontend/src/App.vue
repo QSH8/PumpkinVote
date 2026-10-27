@@ -5,8 +5,6 @@
     <main class="app-content">
       <router-view />
     </main>
-
-    <TheFooter />
   </div>
 </template>
 

@@ -4,7 +4,7 @@ import { toast } from 'vue3-toastify'
 export default {
   QUERY(options, defaultError = true, customHeaders = {}, signal = null) {
     const data = options.data
-    const token = localStorage.getItem('token')
+    const token = sessionStorage.getItem('token')
 
     return new Promise((resolve, reject) => {
       axios({

@@ -7,8 +7,22 @@ async function getTeamsAPI(payload) {
 
   return new Promise((resolve) => {
     API.QUERY({
-      method: 'post',
-      url: `/api/votes/submit`,
+      method: 'get',
+      url: `/api/votes/teams`,
+      data: payload,
+    })
+      .then((response) => resolve(response))
+      .catch((error) => console.log(error))
+  })
+}
+// Запрос на получение команд сразу по категориям
+async function getTeamsByCategoryAPI(payload) {
+  console.log('[API]: getTeamsAPI()')
+
+  return new Promise((resolve) => {
+    API.QUERY({
+      method: 'get',
+      url: `/api/votes/teams-by-category`,
       data: payload,
     })
       .then((response) => resolve(response))
@@ -19,4 +33,5 @@ async function getTeamsAPI(payload) {
 
 export {
   getTeamsAPI,
+  getTeamsByCategoryAPI,
 }

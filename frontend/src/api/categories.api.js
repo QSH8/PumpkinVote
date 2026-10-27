@@ -7,8 +7,8 @@ async function getCategoriesAPI(payload) {
 
   return new Promise((resolve) => {
     API.QUERY({
-      method: 'post',
-      url: `/api/votes/submit`,
+      method: 'get',
+      url: `/api/votes/categories`,
       data: payload,
     })
       .then((response) => resolve(response))

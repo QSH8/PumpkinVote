@@ -4,16 +4,6 @@
       <h2>Вход</h2>
 
       <div class="form-group">
-        <label for="login" class="form-label">Логин</label>
-        <input
-          id="login"
-          v-model.trim="login"
-          type="text"
-          class="form-input"
-          required
-        />
-      </div>
-      <div class="form-group">
         <label for="client-name" class="form-label">Пароль</label>
         <input
           id="password"
@@ -38,27 +28,29 @@ export default {
   name: 'Login',
   data() {
     return {
-      login: '',
       password: '',
       errorMessage: '',
     }
   },
   methods: {
     async handleLogin() {
-      try {
+      // try {
         this.errorMessage = '';
-        const { data } = await loginAPI({ login: login.value, password: password.value })
+        const { data } = await loginAPI({ password: password.value })
        
         if (data.error) {
           this.errorMessage = data?.error || 'Ошибка авторизации';
           return
         } else if (data.token) {
-          localStorage.setItem('token', data.token);
+          console.log('asdasd');
+          
+          sessionStorage.setItem('token', data.token);
           window.dispatchEvent(new Event('local-storage-updated'))
+          this.$store.dispatch('setCurrentUser', data.user)
         }
         
         this.$router.push('/');
-      } catch (e) {}
+      // } catch (e) {}
     }
   }
 }

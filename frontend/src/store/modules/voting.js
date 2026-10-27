@@ -1,15 +1,17 @@
 import { submitVotesAPI } from '@/api/votes.api.js'
-import { getCategoriesAPI } from '@/api/votes.api.js'
-import { getTeamsAPI } from '@/api/votes.api.js'
+import { getCategoriesAPI } from '@/api/categories.api'
+import { getTeamsByCategoryAPI } from '@/api/teams.api.js'
+import { toast } from 'vue3-toastify';
+import { payloadForBackend } from '@/services';
 
 export default {
   namespaced: true,
 
   state: () => ({
     categories: [], 
+    currentCategory: 1,
     teams: [],
     
-    // Структура: { [categoryId]: { [points]: teamId } }
     votes: {
       1: { 3: null, 2: null, 1: null },
       2: { 3: null, 2: null, 1: null },
@@ -23,7 +25,30 @@ export default {
   }),
 
   getters: {
-    // Проверка заполненности конкретного таба
+    availableTeams: (state, _, rootState) => {
+      return state.teams.filter(team => team.id !== Number(rootState?.currentUser?.team_id))
+    },
+
+    currentCategoryTeams: (state, getters) => {
+      return getters.availableTeams.filter(team => team.category_id === state.currentCategory)
+    },
+
+    wholeCategories: (state) => {
+      return [...state.categories, { id: 'absolute', name: 'Общий зачёт'}]
+    },
+
+    currentCategoryVotes: (state) => {
+      return state.votes[state.currentCategory]
+    },
+
+    wasTeamVoted: (_, getters) => (teamId) => {
+      return Object.values(getters.currentCategoryVotes).includes(teamId)
+    },
+
+    votedTeamByScore: (_, getters) => (score) => { // { 3: null, 2: null, 1: anotherTeamId }
+      return getters.currentCategoryVotes[score]
+    },
+
     isCategoryComplete: (state) => (categoryId) => {
       const catVotes = state.votes[categoryId]
 
@@ -32,32 +57,10 @@ export default {
       return catVotes[3] !== null && catVotes[2] !== null && catVotes[1] !== null
     },
 
-    // Валидация всей формы для дизейбла кнопки отправки
     isVotingValid: (_, getters) => {
       const keys = [1, 2, 3, 4, 'absolute']
       return keys.every(key => getters.isCategoryComplete(key))
     },
-
-    // Маппинг стейта под плоский массив для бэкенда
-    payloadForBackend: (state) => {
-      const flatVotes = []
-      
-      Object.entries(state.votes).forEach(([catId, distribution]) => {
-        const category_id = catId === 'absolute' ? null : Number(catId)
-        
-        Object.entries(distribution).forEach(([points, teamId]) => {
-          if (teamId !== null) {
-            flatVotes.push({
-              category_id,
-              team_id: Number(teamId),
-              points: Number(points)
-            })
-          }
-        })
-      })
-      
-      return { votes: flatVotes }
-    }
   },
 
   mutations: {
@@ -66,15 +69,15 @@ export default {
       state.teams = teams
     },
 
-    SET_VOTE(state, { categoryId, points, teamId }) {
+    SET_VOTE(state, { categoryId, score, teamId }) {
       if (state.votes[categoryId]) {
-        state.votes[categoryId][points] = teamId
+        state.votes[categoryId][score] = teamId
       }
     },
 
-    CLEAR_VOTE(state, { categoryId, points }) {
+    CLEAR_VOTE(state, { score, categoryId }) {
       if (state.votes[categoryId]) {
-        state.votes[categoryId][points] = null
+        state.votes[categoryId][score] = null
       }
     },
 
@@ -84,58 +87,70 @@ export default {
 
     SET_ERROR(state, error) {
       state.votingError = error
-    }
+    },
+
+    SET_CURRENT_CATEGORY(state, categoryId) {
+      state.currentCategory = categoryId
+    },
   },
 
   actions: {
-    // 1. Инициализация данных при старте голосования
+    setCurrentCategory({ state, commit }, categoryId) {
+      if (state.currentCategory !== categoryId) {
+        commit('SET_CURRENT_CATEGORY', categoryId)
+      }
+    },
+
     async initVotingData({ commit }) {
+      console.log('initVotingData');
+      
       try {
         const [categoriesRes, teamsRes] = await Promise.all([
           getCategoriesAPI(),
-          getTeamsAPI()
+          getTeamsByCategoryAPI()
         ])
         
         commit('SET_INITIAL_DATA', {
-          categories: categoriesRes.data,
-          teams: teamsRes.data
+          categories: categoriesRes.data?.data ?? [],
+          teams: teamsRes.data?.data ?? []
         })
       } catch (err) {
         commit('SET_ERROR', 'Не удалось загрузить списки участников.')
       }
     },
     
-    setVote({ commit }, payload) {
-      commit('SET_VOTE', payload)
+    setVote({ state, commit }, { score, teamId }) {
+      console.log('setVote');
+
+      commit('SET_VOTE', { score, teamId, categoryId: state.currentCategory })
     },
 
-    clearVote({ commit }, payload) {
-      commit('CLEAR_VOTE', payload);
+    clearVote({ state, commit }, { score }) {
+      console.log('clearVote');
+
+      commit('CLEAR_VOTE', { score, categoryId: state.currentCategory });
     },
 
-    // Чистый экшн без прямой зависимости от axios
-    async submitAllVotes({ commit, getters }) {
+    async submitAllVotes({ state, commit, getters }) {
+      console.log('submitAllVotes');
+
       if (!getters.isVotingValid) {
-        commit('SET_ERROR', 'Заполните все категории перед отправкой.')
+        toast(`Заполните все категории перед отправкой`, { autoClose: 1500, type: 'warning', position: 'top-center' })
+
         return false
       }
 
       commit('SET_SUBMITTING', true)
-      commit('SET_ERROR', null)
 
       try {
-        const payload = getters.payloadForBackend
-        
-        // Вызываем функцию из твоего слоя API
-        await submitVotesAPI(payload)
-        
+        await submitVotesAPI(payloadForBackend(state.votes))
         commit('SET_SUBMITTING', false)
+
         return true
       } catch (err) {
         commit('SET_SUBMITTING', false)
-        // Адаптируй под то, как твой класс API выплевывает ошибки наружу
-        const errMsg = err.error || 'Ошибка при отправке голосов'
-        commit('SET_ERROR', errMsg)
+        toast(`Ошибка при отправке голосов`, { autoClose: 1500, type: 'error', position: 'top-center' })
+
         return false
       }
     }

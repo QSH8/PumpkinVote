@@ -1,21 +1,32 @@
-import { createStore } from 'vuex';
-import { toast } from 'vue3-toastify';
+import { createStore } from 'vuex'
+import voting from './modules/voting.js'
 
 export default createStore({
   state() {
     return {
+      currentUser: {
+        id: null,
+        username: null,
+        team_id: null,
+      },
     };
   },
   
-  getters: {
-    
-  },
+  getters: {},
   
   mutations: {
-    
+    SET_CURRENT_USER(state, user) {
+      state.currentUser = user
+    }
   },
   
   actions: {
-    
+    setCurrentUser({ commit }, user) {
+      commit('SET_CURRENT_USER', user)
+    }
+  },
+
+  modules: {
+    voting,
   }
-});
+})

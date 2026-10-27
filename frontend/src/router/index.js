@@ -10,27 +10,15 @@ const router = createRouter({
       children: [
         {
           path: '/voting',
-          component: () => import('../views/VotingLayout.vue'),
+          component: () => import('../layouts/VotingLayout.vue'),
           meta: { requiresAuth: true },
-          children: [
-            {
-              path: '',
-              redirect: '/voting/1'
-            },
-            {
-              path: ':categoryId',
-              name: 'category-tab',
-              component: () => import('../components/CategoryTab.vue'),
-              props: true
-            }
-          ]
         },
-        {
-          path: '/results',
-          name: 'results',
-          component: () => import('../views/ResultsView.vue'),
-          meta: { requiresAuth: true }
-        },
+        // {
+        //   path: '/results',
+        //   name: 'results',
+        //   component: () => import('../views/ResultsView.vue'),
+        //   meta: { requiresAuth: true }
+        // },
         {
           path: '/:pathMatch(.*)*',
           redirect: '/voting'
@@ -47,7 +35,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from) => {
-  const token = localStorage.getItem('token')
+  const token = sessionStorage.getItem('token')
 
   if (to.meta.requiresAuth && !token) {
     return '/login'
