@@ -126,7 +126,7 @@ export const votesController = {
     }),
 
     getTeamsByCategory: catchAsync(async (req, res, next) => {
-        const teamsByCategory = await votesRepository.getTeamsByCategory(req.userId);
+        const teamsByCategory = await votesRepository.getTeamsByCategory(req.user.id);
 
         res.status(200).json({
             status: 'success',

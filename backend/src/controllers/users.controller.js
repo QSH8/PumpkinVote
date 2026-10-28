@@ -17,7 +17,7 @@ class UsersController {
     }
 
     const { rows: users } = await pool.query(
-      'SELECT id, password_hash, team_id FROM users'
+      'SELECT * FROM users'
     );
 
     let targetUser = null;
@@ -32,8 +32,21 @@ class UsersController {
     }
 
     if (!targetUser) {
-      return res.status(401).json({ error: 'Неверный код доступа' });
+      return res.status(200).json({ error: 'Неверный код доступа' });
     }
+
+    // // Проверка на то, что уже голосовал
+    // const alreadyVoted = await pool.query(`
+    //   SELECT EXISTS (
+    //     SELECT 1 
+    //     FROM votes 
+    //     WHERE user_id = $1
+    //   );
+    // `, [targetUser.id])
+
+    // if (alreadyVoted.rows[0].exists) {
+    //   return res.status(200).json({ error: 'Ты уже голосовал)' })
+    // }
 
     const payload = {
       userId: targetUser.id,
@@ -46,11 +59,7 @@ class UsersController {
     return res.json({
       token,
       error: null,
-      user: {
-        id: targetUser.id,
-        username: targetUser.username,
-        team_id: targetUser.team_id
-      }
+      user: { ...targetUser }
     });
   })
 }

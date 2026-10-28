@@ -1,7 +1,7 @@
--- DROP TABLE IF EXISTS menu_ingredients CASCADE;
--- DROP TABLE IF EXISTS menu CASCADE;
+-- DROP TABLE IF EXISTS categories CASCADE;
+-- DROP TABLE IF EXISTS teams CASCADE;
 -- DROP TABLE IF EXISTS users CASCADE;
--- DROP TABLE IF EXISTS orders CASCADE;
+-- DROP TABLE IF EXISTS votes CASCADE;
 
 -- 1. Справочник категорий (только 4 именованные)
 CREATE TABLE IF NOT EXISTS categories (
@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS categories (
 CREATE TABLE IF NOT EXISTS teams (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL UNIQUE,
+    photo_url VARCHAR(255),
     category_id INT NOT NULL REFERENCES categories(id) ON DELETE RESTRICT
 );
 
@@ -20,8 +21,9 @@ CREATE TABLE IF NOT EXISTS teams (
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(100) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL, -- для авторизации
-    team_id INT NOT NULL REFERENCES teams(id) ON DELETE RESTRICT
+    user_role VARCHAR(100) NOT NULL DEFAULT 'user',
+    team_id INT NOT NULL REFERENCES teams(id) ON DELETE RESTRICT,
+    password_hash VARCHAR(255) NOT NULL -- для авторизации
 );
 
 -- 4. Таблица голосов с жесткими ограничениями

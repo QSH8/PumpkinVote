@@ -3,7 +3,6 @@ import jwt from 'jwt-simple'
 
 export default (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1]; // Ожидаем формат "Bearer TOKEN"
-  console.log('token', token);
   
   if (!token) {
     return res.status(401).json({ error: 'Доступ запрещен. Требуется авторизация.' });
@@ -22,8 +21,6 @@ export default (req, res, next) => {
     };
     next();
   } catch (err) {
-    console.log('err', err);
-    
     return res.status(401).json({ error: 'Невалидный токен' });
   }
 }

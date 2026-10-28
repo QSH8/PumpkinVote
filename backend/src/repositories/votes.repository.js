@@ -100,8 +100,11 @@ class VotesRepository extends BaseRepository {
         `;
         
         const { rows } = await this.pool.query(queryText, [userId]);
-        
-        return rows[0]?.data || {};
+        if (rows[0]?.data) {
+            return { ...rows[0].data, 'absolute': Object.values(rows[0].data).reduce((total, teamList) => [...total, ...teamList], [])}
+        } else {
+            return {}
+        }
     }
 }
 
