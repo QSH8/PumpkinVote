@@ -7,6 +7,7 @@ export default createStore({
       currentUser: {
         id: null,
         username: null,
+        user_role: 'user',
         team_id: null,
       },
     };

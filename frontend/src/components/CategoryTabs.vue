@@ -54,19 +54,18 @@ export default {
   overflow-y: scroll;
   scrollbar-width: none;
   white-space: nowrap;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-  scrollbar-width: none;
-  -ms-overflow-style: none; 
 }
 
 .tab {
   padding: 10px 20px;
   text-decoration: none;
-  color: #333;
+  color: white;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 8px;
+  background-color: #7fbee9;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s ease , border 0.3s ease;
 }
 
 .tab.is-complete {
@@ -79,5 +78,14 @@ export default {
   background-color: #367edd;
   color: white;
   border-color: #367edd;
+}
+
+@media (max-width: 768px) {
+  .tab {
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }
 }
 </style>

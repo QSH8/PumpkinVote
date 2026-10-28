@@ -5,7 +5,7 @@
       :key="score.id"
       type="button"
       class="score-badge-btn"
-      :class="{ 'is-active': currentTeamVote === score.value, 'is-disabled': isScoreButtonDisabled(score.value) }"
+      :class="{ 'is-active': teamId === this.votedTeamByScore(score.value), 'is-disabled': isScoreButtonDisabled(score.value) }"
       @click="toggleVote(score.value)"
     >
       {{ score.value }}
@@ -52,6 +52,10 @@ export default {
         (votedTeamByScore && votedTeamByScore !== this.teamId) ||
         (!votedTeamByScore && this.currentTeamVote)
       )
+    },
+
+    isActive(score) {
+      return this.currentTeamVote === score
     },
     
     toggleVote(score) {

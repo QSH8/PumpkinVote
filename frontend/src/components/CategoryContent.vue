@@ -15,7 +15,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import TeamCard from './TeamCard.vue'
 
 export default {

@@ -14,8 +14,6 @@
         />
       </div>
       
-      <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-
       <button type="button" @click="handleLogin">Войти</button>
     </div>
   </div>
@@ -23,30 +21,32 @@
 
 <script>
 import { loginAPI } from '@/api/login.api'
+import { toast } from 'vue3-toastify'
 
 export default {
   name: 'Login',
   data() {
     return {
       password: '',
-      errorMessage: '',
     }
   },
   methods: {
     async handleLogin() {
       // try {
-        this.errorMessage = '';
         const { data } = await loginAPI({ password: password.value })
+
+        console.log('data ->', data);
+        
        
         if (data.error) {
-          this.errorMessage = data?.error || 'Ошибка авторизации';
+          toast(data?.error || 'Ошибка авторизации', { autoClose: 2000, type: 'error', position: 'top-center' })
+
           return
         } else if (data.token) {
-          console.log('asdasd');
-          
           sessionStorage.setItem('token', data.token);
+          sessionStorage.setItem('user', JSON.stringify(data?.user))
+
           window.dispatchEvent(new Event('local-storage-updated'))
-          this.$store.dispatch('setCurrentUser', data.user)
         }
         
         this.$router.push('/');

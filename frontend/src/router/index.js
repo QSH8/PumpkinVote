@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import store from "../store/index.js"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -36,6 +37,14 @@ const router = createRouter({
 
 router.beforeEach((to, from) => {
   const token = sessionStorage.getItem('token')
+  const user = sessionStorage.getItem('user')
+
+  console.log('user ->', user);
+  
+
+  if (user) {
+    store.dispatch('setCurrentUser', JSON.parse(user))
+  }
 
   if (to.meta.requiresAuth && !token) {
     return '/login'

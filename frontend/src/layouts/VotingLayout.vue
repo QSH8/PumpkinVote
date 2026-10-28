@@ -2,13 +2,15 @@
   <div class="voting-layout">
     <CategoryTabs />
 
-    <template v-for="(categoryTeams, category) in teams" :key="categoryTeams.id">
-      <CategoryContent v-show="category == $store.state.voting.currentCategory" :category-teams="categoryTeams"/>
-    </template>
+    <transition name="fade" mode="out-in">
+      <CategoryContent :key="$store.state.voting.currentCategory" :category-teams="categoryTeams"/>
+    </transition>
 
     <VotingFooter />
   </div>
 </template>
+
+
 
 <script>
 import { mapState } from 'vuex'
@@ -32,6 +34,10 @@ export default {
 
   computed: {
     ...mapState('voting', ['teams']),
+
+    categoryTeams() {
+      return this.teams?.[this.$store.state.voting?.currentCategory] ?? []
+    }
   },
 
   created() {
@@ -42,8 +48,16 @@ export default {
 
 <style scoped>
 .voting-layout {
+  position: relative;
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+}
+
+
+@media (max-width: 768px) {
+  .voting-layout {
+    padding: 5px;
+  }
 }
 </style>

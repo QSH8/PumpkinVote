@@ -2,8 +2,6 @@ import API from '@/utils/api/index.js'
 
 // Запрос на аутентификацию
 async function loginAPI({ login, password }) {
-  console.log('[API]: loginAPI()')
-
   return new Promise((resolve) => {
     API.QUERY({
       method: 'post',

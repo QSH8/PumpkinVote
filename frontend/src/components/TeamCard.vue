@@ -1,18 +1,18 @@
 <template>
   <div class="team-card">
     <div class="team-photo-wrapper">
-      <div class="team-photo-placeholder">Photo <strong>TODO</strong></div>
+      <div class="team-photo-placeholder">Photo</div>
     </div>
 
     <div class="team-info-wrapper">
       <div class="team-meta">
         <h3 class="team-name">{{ team.name }}</h3>
-        <p class="team-participants">Участники: {{ team.participants || 'Команда фестиваля' }}</p>
         <p class="team-description">Описание костюма и персонажей...</p>
         <!-- TODO DESCRIPT AND PARTICIPANTS -->
       </div>
-
-      <VoteButtonGroup :team-id="team.id" />
+      <keep-alive>
+        <VoteButtonGroup :team-id="team.id" />
+      </keep-alive>
     </div>
   </div>
 </template>

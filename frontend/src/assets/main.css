@@ -7,6 +7,23 @@
   font-weight: normal;
 }
 
+#app::-webkit-scrollbar {
+  display: none;
+}
+
+#app {
+  scrollbar-width: none; /* Для Firefox */
+  -ms-overflow-style: none; /* Для IE и старого Edge */
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+
 a,
 .green {
   text-decoration: none;

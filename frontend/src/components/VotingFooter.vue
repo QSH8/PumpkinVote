@@ -38,26 +38,39 @@ export default {
 
 <style scoped>
 .voting-footer {
-  margin-top: 40px;
+  position: sticky;
+  bottom: 20px;
   padding-top: 20px;
-  border-top: 2px solid #ccc;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .submit-btn {
+  width: 100%;
   padding: 15px 30px;
   font-size: 1.1rem;
   background-color: #42b983;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 10px;
   cursor: pointer;
 }
 
 .submit-btn:disabled {
   background-color: #95a5a6;
   cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .submit-btn {
+    padding: 10px 20px;
+    font-size: 1.1rem;
+    background-color: #42b983;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+  }
 }
 </style>
