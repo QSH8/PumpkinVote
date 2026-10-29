@@ -1,7 +1,14 @@
-import { pool } from '../config/db.js';
-import { votesRepository } from '../repositories/votes.repository.js';
-import { AppError } from '../utils/appErrors.js';
-import { catchAsync } from '../utils/catchAsync.js';
+import { pool } from '../config/db.js'
+import { votesRepository } from '../repositories/votes.repository.js'
+import { AppError } from '../utils/appErrors.js'
+import { catchAsync } from '../utils/catchAsync.js'
+
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 export const votesController = {
     // 1. Отправка всей пачки голосов (15 штук)
@@ -133,4 +140,72 @@ export const votesController = {
             data: teamsByCategory
         });
     }),
+
+
+    uploadTeamPhoto: catchAsync(async (req, res, next) => {
+        console.log('req ->', req.body.photo);
+        
+        const teamId = req.params.id;
+
+        try {
+            if (!req.file) {
+                return res.status(400).json({ error: 'Файл не загружен' });
+            }
+
+            const team = await votesRepository.findTeamById(teamId);
+
+            if (!team) {
+                return res.status(404).json({ error: 'Команда не найдена' });
+            }
+
+            if (team.photo_url) {
+                const oldFilePath = path.join(__dirname, '..', '..', team.photo_url); 
+                
+                fs.unlink(oldFilePath, (err) => {
+                    if (err) console.log('Старый файл не найден на диске или уже удален:', err.message);
+                });
+            }
+
+            const newPhotoUrl = `/uploads/${req.file.filename}`;
+
+            const updatedTeam = await votesRepository.updatePhoto(teamId, newPhotoUrl);
+
+            return res.status(200).json({
+                message: 'Фотка команды обновлена',
+                team: updatedTeam
+            });
+        } catch (error) {
+            console.error('Ошибка в контроллере загрузки фото:', error);
+            return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+        }
+    }),
+
+
+    async getTeamPhoto(req, res) {
+        const { teamId } = req.params;
+
+        try {
+            const team = await votesRepository.findTeamById(teamId); 
+            
+            if (!team || !team.photo_url) {
+                return res.status(200).json({ error: 'Фотография не найдена' });
+            }
+
+            const absoluteFilePath = path.join(process.cwd(), team.photo_url);
+
+            return res.sendFile(absoluteFilePath, (err) => {
+                if (err) {
+                    console.error('Ошибка при отправке файла:', err.message);
+
+                    if (!res.headersSent) {
+                        return res.status(200).json({ error: 'Файл физически отсутствует на сервере' });
+                    }
+                }
+            });
+
+        } catch (error) {
+            console.error('Ошибка в getTeamPhoto:', error);
+            return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+        }
+    }
 };

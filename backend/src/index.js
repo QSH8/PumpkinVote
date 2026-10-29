@@ -4,13 +4,24 @@ import votesRouter from './routes/votes.routes.js';
 import { catchAsync } from './utils/catchAsync.js';
 import { CheckAuthMiddleware, ErrorMiddleware } from './middlewares/index.js';
 import { initDatabase, pool } from './config/db.js';
+import path from 'path'
+import { fileURLToPath } from 'url'
+import cors from 'cors';
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const PORT = process.env.PORT || 5000;
 
 const app = express();
 
 app.use(express.json());
-
+app.use(cors({
+  origin: '*', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // LOGIN
 app.use('/api/login', usersRouter);

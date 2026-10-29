@@ -88,7 +88,7 @@ class VotesRepository extends BaseRepository {
             FROM (
             SELECT 
                 category_id, 
-                json_agg(json_build_object('id', id, 'name', name, 'category_id', category_id) ORDER BY id ASC) AS teams_list
+                json_agg(json_build_object('id', id, 'name', name, 'category_id', category_id, 'photo_url', photo_url) ORDER BY id ASC) AS teams_list
             FROM teams
             WHERE id NOT IN (
                 SELECT team_id 
@@ -105,6 +105,27 @@ class VotesRepository extends BaseRepository {
         } else {
             return {}
         }
+    }
+
+
+    /**
+     * Найти команду по id
+     */
+    async findTeamById(id) {
+        const { rows } = await this.pool.query('SELECT id, photo_url FROM teams WHERE id = $1', [id])
+        return rows[0] || null;
+    }
+
+    /**
+     * Добавить фотку
+     */
+    async updatePhoto(id, photoUrl) {
+        const { rows } = await this.pool.query(
+            'UPDATE teams SET photo_url = $1 WHERE id = $2 RETURNING id, name, photo_url',
+            [photoUrl, id]
+        )
+
+        return rows[0];
     }
 }
 
