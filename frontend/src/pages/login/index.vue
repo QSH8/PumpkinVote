@@ -66,7 +66,7 @@ h2 {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-image: url('../../assets/skrep.png');
+  background-image: url('../../assets/pumpking.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -120,7 +120,7 @@ button {
   margin-top: 2rem;
   padding: 0.5rem 1rem;
   box-sizing: border-box;
-  background-color: #34c759;
+  background-color: #eb9e2a;
   color: #ffffff;
   border: none;
   border-radius: 10px;

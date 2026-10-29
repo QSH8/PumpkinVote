@@ -31,16 +31,18 @@ const router = createRouter({
           component: () => import('../pages/login/index.vue')
         }
       ]
-    }
+    },
+    {
+      path: '/total',
+      component: () => import('../layouts/VotingTotal.vue'),
+      meta: { requiresAuth: true }
+    },
   ]
 })
 
 router.beforeEach((to, from) => {
   const token = sessionStorage.getItem('token')
   const user = sessionStorage.getItem('user')
-
-  console.log('user ->', user);
-  
 
   if (user) {
     store.dispatch('setCurrentUser', JSON.parse(user))

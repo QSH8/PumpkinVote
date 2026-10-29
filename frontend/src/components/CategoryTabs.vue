@@ -20,6 +20,16 @@
     >
       Общий зачёт
     </button>
+
+    <button
+      v-if="currentUserIsAdmin"
+      key="total"
+      type="button"
+      class="tab total"
+      @click="goToTotalScreen"
+    >
+      Итоги
+    </button>
   </nav>
 </template>
 
@@ -32,6 +42,7 @@ export default {
   computed: {
     ...mapState('voting', ['categories', 'currentCategory']),
     ...mapGetters('voting', ['isCategoryComplete']),
+    ...mapGetters(['currentUserIsAdmin']),
   },
 
   methods: {
@@ -39,6 +50,10 @@ export default {
 
     switchCategory(catId) {
       this.setCurrentCategory(catId)
+    },
+
+    goToTotalScreen() {
+      this.$router.push('/total')
     }
   }
 };
@@ -68,6 +83,10 @@ export default {
   transition: background 0.3s ease , border 0.3s ease;
 }
 
+.tab.total {
+  background-color: gold;
+}
+
 .tab.is-complete {
   background-color: #42b983;
   color: white;
@@ -81,6 +100,10 @@ export default {
 }
 
 @media (max-width: 768px) {
+  .tabs-navigation {
+    position: sticky;
+    top: 5px;
+  }
   .tab {
     padding: 5px 10px;
     border-radius: 8px;

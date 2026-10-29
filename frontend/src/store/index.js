@@ -13,7 +13,11 @@ export default createStore({
     };
   },
   
-  getters: {},
+  getters: {
+    currentUserIsAdmin(state) {
+      return state.currentUser.user_role === 'admin'
+    }
+  },
   
   mutations: {
     SET_CURRENT_USER(state, user) {

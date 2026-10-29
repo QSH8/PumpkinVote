@@ -39,7 +39,7 @@ export default {
 <style scoped>
 .voting-footer {
   position: sticky;
-  bottom: 20px;
+  bottom: 0;
   padding-top: 20px;
   display: flex;
   justify-content: space-between;

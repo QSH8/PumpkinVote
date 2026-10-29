@@ -1,7 +1,50 @@
 <template>
   <div class="team-card">
     <div class="team-photo-wrapper">
-      <div class="team-photo-placeholder">Photo</div>
+      <div class="team-photo-placeholder">
+        <!-- <div v-if="currentUserIsAdmin" class="upload-zone">
+          <button 
+            type="button" 
+            class="upload-trigger-btn" 
+            @click="triggerSelectFile" 
+            :disabled="isUploading"
+          >
+             <img 
+              v-if="currentPhotoUrl" 
+              :src="currentPhotoUrl" 
+              class="uploaded-preview-img" 
+            />
+            <img 
+              v-if="previewUrl" 
+              :src="previewUrl" 
+              class="uploaded-preview-img" 
+            />
+            <span v-else class="plus-icon">➕</span>
+          </button>
+
+          <input 
+            type="file" 
+            accept="image/*" 
+            ref="fileInput" 
+            @change="handleFileChange" 
+            style="display: none;" 
+          />
+
+          <button 
+            v-if="selectedFile" 
+            class="submit-photo-btn"
+            @click="uploadPhoto" 
+            :disabled="isUploading"
+          >
+            {{ isUploading ? '...' : 'Сохранить' }}
+          </button>
+        </div>
+        <div v-else>Photo</div> -->
+        <img
+          :src="previewUrl"
+          class="uploaded-preview-img" 
+        />
+      </div>
     </div>
 
     <div class="team-info-wrapper">
@@ -18,21 +61,88 @@
 </template>
 
 <script>
+import { getTeamPhoto, uploadTeamPhoto } from '@/api/teams.api';
 import VoteButtonGroup from '@/components/VoteButtonGroup.vue'
-
+import { mapGetters  } from 'vuex';
 export default {
   name: 'TeamCard',
 
   components: {
     VoteButtonGroup,
   },
-  
+
+  data() {
+    return {
+      selectedFile: null,
+      previewUrl: null,
+      isUploading: false,
+    }
+  },
+
   props: {
     team: {
       type: Object,
       required: true,
       default: () => ({})
     },
+  },
+
+  computed: {
+    ...mapGetters(['currentUserIsAdmin']),
+
+    getToken() {
+      return sessionStorage.getItem('token')
+    },
+  },
+
+  methods: {
+    // Вызывает скрытое окно выбора файла при клике на область с плюсиком
+    triggerSelectFile() {
+      this.$refs.fileInput.click();
+    },
+    
+    handleFileChange(event) {
+      const file = event.target.files[0]; // Берем первый файл
+      if (file) {
+        this.selectedFile = file;
+        this.previewUrl = URL.createObjectURL(file);
+      }
+    },
+
+    // 2. Отправляем файл на бэкенд
+    async uploadPhoto() {
+      const formData = new FormData()
+      formData.append('photo', this.selectedFile)
+        const response = await fetch(`/api/votes/teams/${this.team.id}/upload`, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Authorization': `Bearer ${this.getToken}`
+          }
+        });
+
+        console.log('response ->', response);
+        
+      // uploadTeamPhoto(this.team.id, formData)
+    },
+
+    async fetchTeamPhoto() {
+        const response = await getTeamPhoto(this.team.id)
+
+        console.log('response', response.data);
+        
+
+        if (!response.data?.error) {
+          this.previewUrl = URL.createObjectURL(response.data);
+        } else {
+          console.log('Фото у команды отсутствует в БД (покажем плюс)');
+          this.previewUrl = null;
+        }
+    }
+  },
+
+  async mounted() {
+    await this.fetchTeamPhoto();
   },
 };
 </script>
@@ -57,7 +167,7 @@ export default {
 .team-photo-placeholder {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   height: 100%;
   font-weight: bold;
   color: #888;
@@ -122,6 +232,69 @@ export default {
   pointer-events: none;
 }
 
+/* Область-контейнер */
+.upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Наша кастомная квадратная кнопка вместо стандартного инпута */
+.upload-trigger-btn {
+  width: 100px;  /* Подгони размер под свои карточки */
+  height: 100px;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  padding: 0;
+  overflow: hidden;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.upload-trigger-btn:hover {
+  border-color: #4caf50;
+  background-color: #f1fbf2;
+}
+
+/* Иконка плюсика по центру */
+.plus-icon {
+  font-size: 32px;
+  color: #aaa;
+  line-height: 1;
+}
+
+.upload-trigger-btn:hover .plus-icon {
+  color: #4caf50;
+}
+
+/* Стили превью картинки внутри кнопки, чтобы заполняла весь квадрат */
+.uploaded-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Кнопка «Сохранить» под квадратом */
+.submit-photo-btn {
+  padding: 4px 12px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.submit-photo-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
 /* Адаптив под мобилки: 1 карточка в ряд, кнопки уходят вниз, если нужно */
 @media (max-width: 768px) {
   .team-card {
@@ -130,7 +303,6 @@ export default {
   }
   .team-photo-wrapper {
     width: 100%;
-    height: 200px;
     border-right: none;
     border-bottom: 2px solid #222;
   }

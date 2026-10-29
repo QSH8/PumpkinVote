@@ -5,23 +5,20 @@
         <h2>Голосование за лучший костюм</h2>
       </div>
       <div v-if="currentUser.id" class="header__username">
-        <span class="header__username-text" :class="{ 'admin': isAdmin }">{{ currentUser.username }}</span>
+        <span class="header__username-text" :class="{ 'admin': currentUserIsAdmin }">{{ currentUser.username }}</span>
       </div>
     </div>
   </header>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
   name: 'TheHeader',
   computed: {
     ...mapState(['currentUser']),
-
-    isAdmin() {
-      return this.currentUser.user_role === 'admin' 
-    }
+    ...mapGetters(['currentUserIsAdmin']),
   },
 }
 
