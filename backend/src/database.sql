@@ -42,11 +42,11 @@ CREATE TABLE IF NOT EXISTS votes (
 
     -- ОГРАНИЧЕНИЕ 1: Один юзер может поставить конкретный номинал (например, 3 балла) 
     -- строго один раз в рамках одной категории (и один раз в Абсолютной, где category_id IS NULL)
-    CONSTRAINT unique_user_category_points UNIQUE NULLS NOT DISTINCT (user_id, category_id, points),
+    CONSTRAINT unique_user_category_points UNIQUE (user_id, category_id, points),
 
     -- ОГРАНИЧЕНИЕ 2: Один юзер может проголосовать за конкретную команду 
     -- строго один раз в рамках одной категории (и один раз в Абсолютной)
-    CONSTRAINT unique_user_category_team UNIQUE NULLS NOT DISTINCT (user_id, category_id, team_id)
+    CONSTRAINT unique_user_category_team UNIQUE (user_id, category_id, team_id)
 );
 
 -- Валидация на уровне БД: Запрет голосования за свою команду через триггер

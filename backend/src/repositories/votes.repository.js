@@ -109,6 +109,123 @@ class VotesRepository extends BaseRepository {
 
 
     /**
+     * Получить итоги
+     */
+    async getTotalVotes() {
+        const queryText = `
+            WITH team_scores AS (
+                SELECT 
+                    COALESCE(c.name, 'Абсолютная категория') AS category_name,
+                    v.team_id,
+                    t.name AS team_name,
+                    SUM(v.points) AS total_score
+                FROM votes v
+                LEFT JOIN categories c ON v.category_id = c.id
+                LEFT JOIN teams t ON v.team_id = t.id
+                GROUP BY COALESCE(c.name, 'Абсолютная категория'), v.team_id, t.name
+                ORDER BY category_name, total_score DESC
+            ),
+            category_arrays AS (
+                SELECT 
+                    category_name,
+                    jsonb_agg(
+                        jsonb_build_object(
+                            'team_id', team_id,
+                            'team_name', team_name,
+                            'totalScore', total_score
+                        )
+                    ) AS teams_list
+                FROM team_scores
+                GROUP BY category_name
+            )
+            SELECT jsonb_object_agg(category_name, teams_list) AS result
+            FROM category_arrays;
+        `;
+        
+        const { rows } = await this.pool.query(queryText);
+
+        console.log('rows', rows);
+        
+
+        if (rows[0]?.result) {
+            return { ...rows[0].result }
+        } else {
+            return {}
+        }
+    }
+    /**
+     * Получить все команды
+     */
+    async getVotedUsers(userId) {
+        const queryText = `
+            SELECT 
+                u.username AS username,
+                (COUNT(v.id) > 0) AS alreadyVoted
+            FROM users u
+            LEFT JOIN votes v ON u.id = v.user_id
+            GROUP BY u.id, u.username
+            ORDER BY u.username;
+        `;
+        
+        const { rows } = await this.pool.query(queryText);
+        if (rows) {
+            console.log('rows', rows);
+            
+            return rows
+        } else {
+            return {}
+        }
+    }
+
+
+    /**
+     * Получить итоги
+     */
+    async getTotalVotes() {
+        const queryText = `
+            WITH team_scores AS (
+                SELECT 
+                    COALESCE(c.name, 'Абсолютная категория') AS category_name,
+                    v.team_id,
+                    t.name AS team_name,
+                    SUM(v.points) AS total_score
+                FROM votes v
+                LEFT JOIN categories c ON v.category_id = c.id
+                LEFT JOIN teams t ON v.team_id = t.id
+                GROUP BY COALESCE(c.name, 'Абсолютная категория'), v.team_id, t.name
+                ORDER BY category_name, total_score DESC
+            ),
+            category_arrays AS (
+                SELECT 
+                    category_name,
+                    jsonb_agg(
+                        jsonb_build_object(
+                            'team_id', team_id,
+                            'team_name', team_name,
+                            'totalScore', total_score
+                        )
+                    ) AS teams_list
+                FROM team_scores
+                GROUP BY category_name
+            )
+            SELECT jsonb_object_agg(category_name, teams_list) AS result
+            FROM category_arrays;
+        `;
+        
+        const { rows } = await this.pool.query(queryText);
+
+        console.log('rows', rows);
+        
+
+        if (rows[0]?.result) {
+            return { ...rows[0].result }
+        } else {
+            return {}
+        }
+    }
+
+
+    /**
      * Найти команду по id
      */
     async findTeamById(id) {

@@ -35,18 +35,18 @@ class UsersController {
       return res.status(200).json({ error: 'Неверный код доступа' });
     }
 
-    // // Проверка на то, что уже голосовал
-    // const alreadyVoted = await pool.query(`
-    //   SELECT EXISTS (
-    //     SELECT 1 
-    //     FROM votes 
-    //     WHERE user_id = $1
-    //   );
-    // `, [targetUser.id])
+    // Проверка на то, что уже голосовал
+    const alreadyVoted = await pool.query(`
+      SELECT EXISTS (
+        SELECT 1 
+        FROM votes 
+        WHERE user_id = $1
+      );
+    `, [targetUser.id])
 
-    // if (alreadyVoted.rows[0].exists) {
-    //   return res.status(200).json({ error: 'Ты уже голосовал)' })
-    // }
+    if (alreadyVoted.rows[0].exists && !targetUser.user_role === 'admin') {
+      return res.status(200).json({ error: 'Ты уже голосовал)' })
+    }
 
     const payload = {
       userId: targetUser.id,

@@ -22,6 +22,8 @@ const upload = multer({ storage });
 router.get('/categories', votesController.getCategories)
 router.get('/teams', votesController.getTeams)
 router.get('/teams-by-category', votesController.getTeamsByCategory)
+router.get('/total', votesController.getTotalVotes)
+router.get('/voted-users', votesController.getVotedUsers)
 
 router.post('/teams/:id/upload', upload.single('photo'), votesController.uploadTeamPhoto)
 router.get('/photos/:teamId', votesController.getTeamPhoto);

@@ -141,6 +141,25 @@ export const votesController = {
         });
     }),
 
+    getTotalVotes: catchAsync(async (req, res, next) => {
+        const totalVotes = await votesRepository.getTotalVotes();
+
+        res.status(200).json({
+            status: 'success',
+            data: totalVotes
+        });
+    }),
+
+
+    getVotedUsers: catchAsync(async (req, res, next) => {
+        const votedUsers = await votesRepository.getVotedUsers();
+
+        res.status(200).json({
+            status: 'success',
+            data: votedUsers
+        });
+    }),
+
 
     uploadTeamPhoto: catchAsync(async (req, res, next) => {
         console.log('req ->', req.body.photo);
