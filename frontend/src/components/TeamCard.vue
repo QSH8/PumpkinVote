@@ -50,8 +50,6 @@
     <div class="team-info-wrapper">
       <div class="team-meta">
         <h3 class="team-name">{{ team.name }}</h3>
-        <p class="team-description">Описание костюма и персонажей...</p>
-        <!-- TODO DESCRIPT AND PARTICIPANTS -->
       </div>
       <keep-alive>
         <VoteButtonGroup :team-id="team.id" />
@@ -151,17 +149,17 @@ export default {
 /* Сама карточка команды */
 .team-card {
   display: flex;
-  border: 2px solid #222;
   border-radius: 12px;
   overflow: hidden;
   background: #fff;
   height: 220px; /* Фиксируем высоту для ровной сетки */
+  box-shadow: 0 0 25px 5px rgba(0, 0, 0, 0.06);
 }
 
 /* Контейнер для фото */
 .team-photo-wrapper {
   width: 45%;
-  border-right: 2px solid #222;
+  box-shadow: 0 0 25px 5px rgba(0, 0, 0, 0.06);
   background: #f0f0f0;
 }
 .team-photo-placeholder {
@@ -303,8 +301,6 @@ export default {
   }
   .team-photo-wrapper {
     width: 100%;
-    border-right: none;
-    border-bottom: 2px solid #222;
   }
   .team-info-wrapper {
     width: 100%;

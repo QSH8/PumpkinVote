@@ -102,7 +102,9 @@ export default {
 @media (max-width: 768px) {
   .tabs-navigation {
     position: sticky;
-    top: 5px;
+    z-index: 100;
+    top: 88px;
+    background-color: white;
   }
   .tab {
     padding: 5px 10px;
