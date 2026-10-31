@@ -77,3 +77,6 @@ INSERT INTO categories (name) VALUES
 ('Юмор, пародии и предметы'), 
 ('Кино и сериалы')
 ON CONFLICT (name) DO NOTHING;
+
+INSERT INTO users (username, user_role, team_id, password_hash)
+VALUES ('cxnnx', 'admin', '19', '$2b$10$4DeqA2/6emPRM6ZYmjB5X.VvSNLxAr/6Cw9oev7YWbQDLE4BRELi.');
